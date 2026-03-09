@@ -32,9 +32,15 @@ func main() {
 
 	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
 
+	icon, _ := walk.NewIconFromFile("winres/icon.png")
+	if icon == nil {
+		icon, _ = walk.NewIconFromResourceId(1)
+	}
+
 	if err := (MainWindow{
 		AssignTo:   &state.MainWindow,
 		Title:      "Postlang",
+		Icon:       icon,
 		MinSize:    Size{Width: 900, Height: 600},
 		Font:       Font{Family: "Segoe UI", PointSize: 10},
 		Background: bgBrush,
