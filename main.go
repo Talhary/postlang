@@ -30,11 +30,14 @@ func main() {
 		HttpMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"},
 	}
 
+	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
+
 	if err := (MainWindow{
 		AssignTo:   &state.MainWindow,
 		Title:      "Postlang",
 		MinSize:    Size{Width: 900, Height: 600},
 		Font:       Font{Family: "Segoe UI", PointSize: 10},
+		Background: bgBrush,
 		Layout:     HBox{MarginsZero: true},
 		MenuItems:  state.buildMenuBar(),
 		Children: []Widget{
@@ -124,11 +127,17 @@ func (s *AppState) buildMenuBar() []MenuItem {
 }
 
 func (s *AppState) buildLeftNav() Widget {
+	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
 	return Composite{
-		Layout:  VBox{MarginsZero: true},
-		MinSize: Size{Width: 250, Height: 0},
+		Layout:     VBox{MarginsZero: true},
+		MinSize:    Size{Width: 250, Height: 0},
+		Background: bgBrush,
 		Children: []Widget{
-			Label{Text: "API Endpoints (Import from File)"},
+			Label{
+				Text:       "API Endpoints (Import from File)",
+				TextColor:  walk.RGB(220, 220, 220),
+				Background: bgBrush,
+			},
 			ListBox{
 				AssignTo: &s.EndpointsList,
 				Model:    s.EndpointStrings,
@@ -171,8 +180,10 @@ func (s *AppState) buildLeftNav() Widget {
 }
 
 func (s *AppState) buildRightPane() Widget {
+	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
 	return Composite{
-		Layout: VBox{},
+		Layout:     VBox{},
+		Background: bgBrush,
 		Children: []Widget{
 			s.buildTopBar(),
 			VSplitter{
@@ -186,8 +197,10 @@ func (s *AppState) buildRightPane() Widget {
 }
 
 func (s *AppState) buildTopBar() Widget {
+	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
 	return Composite{
-		Layout: HBox{MarginsZero: true},
+		Layout:     HBox{MarginsZero: true},
+		Background: bgBrush,
 		Children: []Widget{
 			ComboBox{
 				AssignTo:     &s.MethodCB,
@@ -208,11 +221,13 @@ func (s *AppState) buildTopBar() Widget {
 }
 
 func (s *AppState) buildRequestTabs() Widget {
+	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
 	return TabWidget{
 		Pages: []TabPage{
 			{
-				Title:  "Headers",
-				Layout: VBox{MarginsZero: true},
+				Title:      "Headers",
+				Layout:     VBox{MarginsZero: true},
+				Background: bgBrush,
 				Children: []Widget{
 					TextEdit{
 						AssignTo: &s.HeadersTE,
@@ -222,8 +237,9 @@ func (s *AppState) buildRequestTabs() Widget {
 				},
 			},
 			{
-				Title:  "Body",
-				Layout: VBox{MarginsZero: true},
+				Title:      "Body",
+				Layout:     VBox{MarginsZero: true},
+				Background: bgBrush,
 				Children: []Widget{
 					TextEdit{
 						AssignTo: &s.BodyTE,
@@ -237,8 +253,10 @@ func (s *AppState) buildRequestTabs() Widget {
 }
 
 func (s *AppState) buildResponseSection() Widget {
+	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
 	return Composite{
-		Layout: VBox{MarginsZero: true},
+		Layout:     VBox{MarginsZero: true},
+		Background: bgBrush,
 		Children: []Widget{
 			Label{
 				AssignTo: &s.StatusLbl,
