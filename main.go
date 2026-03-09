@@ -30,7 +30,7 @@ func main() {
 		HttpMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"},
 	}
 
-	if _, err := (MainWindow{
+	if err := (MainWindow{
 		AssignTo:   &state.MainWindow,
 		Title:      "Postlang",
 		MinSize:    Size{Width: 900, Height: 600},
@@ -45,8 +45,43 @@ func main() {
 				},
 			},
 		},
-	}.Run()); err != nil {
+	}.Create()); err != nil {
 		log.Fatal(err)
+	}
+
+	state.applyDarkTheme()
+	state.MainWindow.Run()
+}
+
+func (s *AppState) applyDarkTheme() {
+	bg, _ := walk.NewSolidColorBrush(walk.RGB(40, 44, 52))
+	inBg, _ := walk.NewSolidColorBrush(walk.RGB(33, 37, 43))
+	fg := walk.RGB(220, 220, 220)
+
+	s.MainWindow.SetBackground(bg)
+	
+	if s.EndpointsList != nil {
+		s.EndpointsList.SetBackground(inBg)
+	}
+	if s.UrlLE != nil {
+		s.UrlLE.SetBackground(inBg)
+		s.UrlLE.SetTextColor(fg)
+	}
+	if s.HeadersTE != nil {
+		s.HeadersTE.SetBackground(inBg)
+		s.HeadersTE.SetTextColor(fg)
+	}
+	if s.BodyTE != nil {
+		s.BodyTE.SetBackground(inBg)
+		s.BodyTE.SetTextColor(fg)
+	}
+	if s.RespBodyTE != nil {
+		s.RespBodyTE.SetBackground(inBg)
+		s.RespBodyTE.SetTextColor(fg)
+	}
+	if s.StatusLbl != nil {
+		s.StatusLbl.SetBackground(bg)
+		s.StatusLbl.SetTextColor(fg)
 	}
 }
 
@@ -101,8 +136,33 @@ func (s *AppState) buildLeftNav() Widget {
 					idx := s.EndpointsList.CurrentIndex()
 					if idx >= 0 && idx < len(s.Endpoints) {
 						ep := s.Endpoints[idx]
-						s.MethodCB.SetText(ep.Method)
-						s.UrlLE.SetText("http://localhost:8080" + ep.Path)
+						
+						for i, m := range s.HttpMethods {
+							if m == ep.Method {
+								s.MethodCB.SetCurrentIndex(i)
+								break
+							}
+						}
+
+						fullURL := ep.Path
+						if ep.BaseURL != "" {
+							fullURL = ep.BaseURL + ep.Path
+						} else {
+							fullURL = "http://localhost:8080" + ep.Path
+						}
+						s.UrlLE.SetText(fullURL)
+
+						if ep.Headers != "" {
+							s.HeadersTE.SetText(ep.Headers)
+						} else {
+							s.HeadersTE.SetText("")
+						}
+
+						if ep.Body != "" {
+							s.BodyTE.SetText(ep.Body)
+						} else {
+							s.BodyTE.SetText("")
+						}
 					}
 				},
 			},
