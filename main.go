@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -20,6 +21,7 @@ type AppState struct {
 	SendBtn       *widget.Button
 	HeadersTE     *widget.Entry
 	BodyTE        *widget.Entry
+	VarsTE        *widget.Entry
 	StatusLbl     *widget.Label
 	RespBodyTE    *widget.Entry
 	EndpointsList *widget.List
@@ -152,9 +154,13 @@ func (s *AppState) buildRightPane() fyne.CanvasObject {
 	s.BodyTE = widget.NewMultiLineEntry()
 	s.BodyTE.SetText("{\n  \"key\": \"value\"\n}")
 
+	s.VarsTE = widget.NewMultiLineEntry()
+	s.VarsTE.SetText("BASE_URL=https://httpbin.org\nTOKEN=my-secret-token")
+
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Headers", s.HeadersTE),
 		container.NewTabItem("Body", s.BodyTE),
+		container.NewTabItem("Variables", s.VarsTE),
 	)
 
 	s.StatusLbl = widget.NewLabel("Status: N/A")
@@ -189,11 +195,29 @@ func (s *AppState) handleSendClicked() {
 	s.RespBodyTE.SetText("")
 
 	go func() {
+		// Parse variables
+		vars := make(map[string]string)
+		for _, line := range strings.Split(s.VarsTE.Text, "\n") {
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				vars[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+			}
+		}
+
+		// Substitution function
+		substitute := func(in string) string {
+			out := in
+			for k, v := range vars {
+				out = strings.ReplaceAll(out, "{{"+k+"}}", v)
+			}
+			return out
+		}
+
 		opts := RequestOpts{
 			Method:  s.MethodCB.Selected,
-			URL:     s.UrlLE.Text,
-			Headers: s.HeadersTE.Text,
-			Body:    s.BodyTE.Text,
+			URL:     substitute(s.UrlLE.Text),
+			Headers: substitute(s.HeadersTE.Text),
+			Body:    substitute(s.BodyTE.Text),
 		}
 
 		res := performRequest(opts)
