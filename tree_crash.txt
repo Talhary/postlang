@@ -1,0 +1,187 @@
+﻿go : panic: 
+interface 
+conversion: 
+fyne.CanvasObject is 
+*widget.Icon, not 
+*widget.Button
+At line:1 char:1
++ go run . *>&1 | 
+Out-File -Encoding 
+utf8 tree_crash.txt
++ ~~~~~~~~~~~~~
+    + CategoryInfo   
+           : 
+NotSpeci    fied: 
+(panic: int    
+erfac... *widget.    
+Button:String) []    
+, RemoteException
+    + 
+FullyQualifiedE    
+rrorId : NativeCo    
+mmandError
+ 
+
+goroutine 1 
+[running, locked to 
+thread]:
+main.(*AppState).buil
+dLeftNav.func10({0xc0
+0042a0a8, 0x17}, 
+0x0, 
+{0x7ff7de8e61a0, 
+0xc000319500})
+	D:/postlang/main.go:
+325 +0x286
+fyne.io/fyne/v2/widge
+t.(*treeContentRender
+er).Layout.func1({0xc
+00042a0a8, 0x17}, 
+{0x7ff7deed5d20?, 
+0xc0011b6150?}, 0x0, 
+0x7ff7dd5b7025?)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:683 +0x73f
+fyne.io/fyne/v2/widge
+t.(*Tree).walk(0xc000
+0ca2d0, 
+{0xc00042a0a8, 
+0x17}, {0x0, 0x0}, 
+0x1, 0xc00139bac8)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:481 +0x185
+fyne.io/fyne/v2/widge
+t.(*Tree).walk(0xc000
+0ca2d0, {0x0, 0x0}, 
+{0x0, 0x0}, 0x0, 
+0xc00139bac8)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:476 +0x1c5
+fyne.io/fyne/v2/widge
+t.(*Tree).walkAll(...
+)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:488
+fyne.io/fyne/v2/widge
+t.(*treeContentRender
+er).Layout(0xc0001be6
+00, {0xdd5bd3b6?, 
+0x7ff7?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:621 +0x311
+fyne.io/fyne/v2/widge
+t.(*treeContentRender
+er).refreshForID(0xc0
+001be600, 
+{0x7ff7de79ed16, 
+0x9})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:777 +0x139
+fyne.io/fyne/v2/widge
+t.(*treeContentRender
+er).Refresh(0xc0001be
+600)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:766 +0x38
+fyne.io/fyne/v2/widge
+t.(*BaseWidget).Refre
+sh(0x42100000432c6800
+?)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/widget.go:127 +0x52
+fyne.io/fyne/v2/widge
+t.(*treeContent).Refr
+esh(...)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:580
+fyne.io/fyne/v2/widge
+t.(*treeContent).Resi
+ze(0x7ff7de745840?, 
+{0xde8dc930?, 
+0x7ff7?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:570 +0x65
+fyne.io/fyne/v2/inter
+nal/widget.(*scrollCo
+ntainerRenderer).Layo
+ut(0xc00007ec00, 
+{0x432c6800, 
+0x42100000})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/intern
+al/widget/scroller.go
+:391 +0x87
+fyne.io/fyne/v2/inter
+nal/widget.(*Base).Re
+size(0x42000000420000
+00?, {0x139bd80?, 
+0xc0?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/intern
+al/widget/base.go:45 
++0x72
+fyne.io/fyne/v2/inter
+nal/widget.(*Scroll).
+Resize(0xc00040fb00, 
+{0x11aa800?, 0xc0?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/intern
+al/widget/scroller.go
+:565 +0x36
+fyne.io/fyne/v2/widge
+t.(*treeRenderer).Lay
+out(0xc000271ec0, 
+{0xca2d0?, 0xc0?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:509 +0x2e
+fyne.io/fyne/v2/widge
+t.(*BaseWidget).Resiz
+e(0x7ff7ddbe0bce?, 
+{0x271ec0?, 0xc0?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/widget.go:51 +0x6b
+fyne.io/fyne/v2/widge
+t.(*Tree).Resize(0xc0
+000ca2d0, 
+{0xde8e2160?, 
+0x7ff7?})
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:230 +0x39
+fyne.io/fyne/v2/widge
+t.(*treeRenderer).Ref
+resh(0xc000271ec0)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/tree.go:517 +0x86
+fyne.io/fyne/v2/widge
+t.(*BaseWidget).Refre
+sh(0x7ff7dd55bfc5?)
+	D:/postlang/vendor/f
+yne.io/fyne/v2/widget
+/widget.go:127 +0x52
+main.(*AppState).load
+ActiveProject(0xc0004
+44750)
+	D:/postlang/main.go:
+149 +0x78
+main.(*AppState).buil
+dUI(0xc000444750)
+	D:/postlang/main.go:
+136 +0x116
+main.main()
+	D:/postlang/main.go:
+72 +0x4a6
+exit status 2

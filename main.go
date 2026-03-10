@@ -28,14 +28,17 @@ type AppState struct {
 	StatusLbl     *widget.Label
 	RespBodyTE           *widget.Entry
 	RespPreviewRT        *widget.RichText
-	EndpointsList        *widget.List
+	EndpointsTree        *widget.Tree
 	RightSidebar         *fyne.Container
 	RightSidebarVisible  bool
 	MainSplit            *container.Split
 
-	Endpoints       []Endpoint
-	EndpointStrings []string
-	HttpMethods     []string
+	Workspace           *Workspace
+	ActiveProject       *Project
+	ActiveNodeUID       string
+	IsUpdatingUI        bool
+
+	HttpMethods []string
 }
 
 func main() {
@@ -49,10 +52,20 @@ func main() {
 		a.SetIcon(logo)
 	}
 
+	ws, err := LoadWorkspace()
+	if err != nil {
+		dialog.ShowError(fmt.Errorf("could not load workspace: %v", err), w)
+		// Fallback to empty if critical fail
+		ws = &Workspace{Projects: []Project{{ID: "default", Name: "Default Project"}}}
+	}
+
 	state := &AppState{
-		App:         a,
-		Window:      w,
-		HttpMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"},
+		App:           a,
+		Window:        w,
+		Workspace:     ws,
+		ActiveProject: &ws.Projects[0],
+		ActiveNodeUID: "",
+		HttpMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"},
 	}
 
 	w.SetMainMenu(state.buildMenuBar())
@@ -81,13 +94,23 @@ func (s *AppState) buildMenuBar() *fyne.MainMenu {
 						return
 					}
 
-					s.Endpoints = eps
-					s.EndpointStrings = make([]string, len(s.Endpoints))
-					for i, e := range s.Endpoints {
-						s.EndpointStrings[i] = e.DisplayName()
+					for _, ep := range eps {
+						uid := fmt.Sprintf("node_%d", time.Now().UnixNano())
+						time.Sleep(1 * time.Nanosecond)
+						node := &Node{
+							UID:      uid,
+							Name:     ep.Path,
+							IsFolder: false,
+							Endpoint: &ep,
+						}
+						s.ActiveProject.Nodes[uid] = node
+						s.ActiveProject.RootNodes = append(s.ActiveProject.RootNodes, uid)
 					}
-
-					s.EndpointsList.Refresh()
+					
+					SaveWorkspace(s.Workspace)
+					if s.EndpointsTree != nil {
+						s.EndpointsTree.Refresh()
+					}
 				}, s.Window)
 
 				// Fyne file filters
@@ -108,34 +131,267 @@ func (s *AppState) buildUI() fyne.CanvasObject {
 	s.MainSplit.Offset = 0.25 // 25% width for left nav
 	
 	s.RightSidebarVisible = false
+	
+	// Post-init load
+	s.loadActiveProject()
+	
 	return s.MainSplit
 }
 
-func (s *AppState) buildLeftNav() fyne.CanvasObject {
-	title := widget.NewLabel("API Endpoints (Import from File)")
-	title.TextStyle = fyne.TextStyle{Bold: true}
+func (s *AppState) loadActiveProject() {
+	if s.EndpointsTree == nil || s.VarsTE == nil || s.UrlLE == nil {
+		return // Prevent panic during UI construction phase
+	}
 
-	s.EndpointsList = widget.NewList(
-		func() int { return len(s.EndpointStrings) },
-		func() fyne.CanvasObject { return widget.NewLabel("Method /path/to/endpoint") },
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(s.EndpointStrings[i])
+	s.IsUpdatingUI = true
+	s.ActiveNodeUID = ""
+
+	s.EndpointsTree.Refresh()
+	
+	s.VarsTE.SetText(s.ActiveProject.Variables)
+	
+	s.UrlLE.SetText("")
+	s.HeadersTE.SetText("")
+	s.BodyTE.SetText("")
+	s.IsUpdatingUI = false
+}
+
+func (s *AppState) buildLeftNav() fyne.CanvasObject {
+	var projectSelect *widget.Select
+
+	updateSelectOptions := func() {
+		projectNames := []string{}
+		for _, p := range s.Workspace.Projects {
+			projectNames = append(projectNames, p.Name)
+		}
+		projectSelect.Options = projectNames
+		projectSelect.SetSelected(s.ActiveProject.Name)
+	}
+
+	projectSelect = widget.NewSelect(nil, func(selected string) {
+		for i := range s.Workspace.Projects {
+			if s.Workspace.Projects[i].Name == selected {
+				s.ActiveProject = &s.Workspace.Projects[i]
+				s.loadActiveProject()
+				return
+			}
+		}
+	})
+	updateSelectOptions()
+
+	newBtn := widget.NewButtonWithIcon("", theme.ContentAddIcon(), func() {
+		entry := widget.NewEntry()
+		dialog.ShowCustomConfirm("New Project", "Create", "Cancel", entry, func(create bool) {
+			if create && entry.Text != "" {
+				newProj := Project{
+					ID:        fmt.Sprintf("proj_%d", time.Now().UnixNano()),
+					Name:      entry.Text,
+					Nodes:     make(map[string]*Node),
+					RootNodes: []string{},
+					Variables: "",
+				}
+				s.Workspace.Projects = append(s.Workspace.Projects, newProj)
+				s.ActiveProject = &s.Workspace.Projects[len(s.Workspace.Projects)-1]
+				SaveWorkspace(s.Workspace)
+				updateSelectOptions()
+			}
+		}, s.Window)
+	})
+
+	delBtn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
+		if len(s.Workspace.Projects) <= 1 {
+			dialog.ShowInformation("Cannot Delete", "You must have at least one project in the workspace.", s.Window)
+			return
+		}
+		dialog.ShowConfirm("Delete Project", fmt.Sprintf("Delete project '%s'?", s.ActiveProject.Name), func(del bool) {
+			if del {
+				for i, p := range s.Workspace.Projects {
+					if p.ID == s.ActiveProject.ID {
+						s.Workspace.Projects = append(s.Workspace.Projects[:i], s.Workspace.Projects[i+1:]...)
+						break
+					}
+				}
+				s.ActiveProject = &s.Workspace.Projects[0]
+				SaveWorkspace(s.Workspace)
+				updateSelectOptions()
+			}
+		}, s.Window)
+	})
+
+	newFolderBtn := widget.NewButtonWithIcon("", theme.FolderNewIcon(), func() {
+		entry := widget.NewEntry()
+		dialog.ShowCustomConfirm("New Folder", "Create", "Cancel", entry, func(create bool) {
+			if create && entry.Text != "" {
+				uid := fmt.Sprintf("folder_%d", time.Now().UnixNano())
+				node := &Node{
+					UID:      uid,
+					Name:     entry.Text,
+					IsFolder: true,
+				}
+				
+				// Insert either at root or inside current folder if selected
+				if s.ActiveNodeUID != "" && s.ActiveProject.Nodes[s.ActiveNodeUID] != nil && s.ActiveProject.Nodes[s.ActiveNodeUID].IsFolder {
+					node.ParentUID = s.ActiveNodeUID
+					s.ActiveProject.Nodes[uid] = node
+					
+					// We need to keep track of folder children, but for simplicity let's scan or we need a Children []string in Node.
+					// Let's add children to Node or we can just filter by ParentUID. Scanning by ParentUID is easier.
+					// Save Workspace and refresh tree.
+				} else {
+					s.ActiveProject.RootNodes = append(s.ActiveProject.RootNodes, uid)
+					s.ActiveProject.Nodes[uid] = node
+				}
+				
+				SaveWorkspace(s.Workspace)
+				s.EndpointsTree.Refresh()
+			}
+		}, s.Window)
+	})
+
+	newReqBtn := widget.NewButtonWithIcon("", theme.ContentAddIcon(), func() {
+		uid := fmt.Sprintf("req_%d", time.Now().UnixNano())
+		newEp := Endpoint{
+			Method:  "GET",
+			Path:    "/new-request",
+			BaseURL: "http://localhost:8080",
+			Headers: "Content-Type: application/json",
+		}
+		node := &Node{
+			UID:      uid,
+			Name:     "/new-request",
+			IsFolder: false,
+			Endpoint: &newEp,
+		}
+
+		if s.ActiveNodeUID != "" && s.ActiveProject.Nodes[s.ActiveNodeUID] != nil {
+			if s.ActiveProject.Nodes[s.ActiveNodeUID].IsFolder {
+				node.ParentUID = s.ActiveNodeUID
+			} else {
+				node.ParentUID = s.ActiveProject.Nodes[s.ActiveNodeUID].ParentUID
+			}
+		}
+		
+		s.ActiveProject.Nodes[uid] = node
+		if node.ParentUID == "" {
+			s.ActiveProject.RootNodes = append(s.ActiveProject.RootNodes, uid)
+		}
+		SaveWorkspace(s.Workspace)
+		s.EndpointsTree.Refresh()
+	})
+
+	title := widget.NewLabel("Projects & APIs")
+	title.TextStyle = fyne.TextStyle{Bold: true}
+	
+	reqRow := container.NewBorder(nil, nil, nil, container.NewHBox(newFolderBtn, newReqBtn), title)
+
+	s.EndpointsTree = widget.NewTree(
+		func(id widget.TreeNodeID) []widget.TreeNodeID {
+			if id == "" {
+				return s.ActiveProject.RootNodes
+			}
+			var children []string
+			for uid, n := range s.ActiveProject.Nodes {
+				if n.ParentUID == id {
+					children = append(children, uid)
+				}
+			}
+			return children
+		},
+		func(id widget.TreeNodeID) bool {
+			if id == "" { return true }
+			if n, ok := s.ActiveProject.Nodes[id]; ok {
+				return n.IsFolder
+			}
+			return false
+		},
+		func(branch bool) fyne.CanvasObject {
+			var icon fyne.Resource
+			if branch {
+				icon = theme.FolderIcon()
+			} else {
+				icon = theme.DocumentIcon()
+			}
+			
+			btn := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {})
+			lbl := widget.NewLabel("Loading...")
+			return container.NewBorder(nil, nil, widget.NewIcon(icon), btn, lbl)
+		},
+		func(id widget.TreeNodeID, branch bool, o fyne.CanvasObject) {
+			node, ok := s.ActiveProject.Nodes[id]
+			if !ok { return }
+
+			border := o.(*fyne.Container)
+			
+			var lbl *widget.Label
+			var btnBox *widget.Button
+			for _, obj := range border.Objects {
+				switch v := obj.(type) {
+				case *widget.Label:
+					lbl = v
+				case *widget.Button:
+					btnBox = v
+				}
+			}
+			
+			if lbl == nil || btnBox == nil { return }
+
+			if branch {
+				lbl.SetText(node.Name)
+			} else {
+				lbl.SetText(fmt.Sprintf("%-7s %s", node.Endpoint.Method, node.Endpoint.Path))
+			}
+
+			// Capture id for click action
+			btnBox.OnTapped = func() {
+				dialog.ShowConfirm("Delete Node", fmt.Sprintf("Delete '%s'?", node.Name), func(del bool) {
+					if del {
+						if node.ParentUID == "" {
+							for i, ruid := range s.ActiveProject.RootNodes {
+								if ruid == id {
+									s.ActiveProject.RootNodes = append(s.ActiveProject.RootNodes[:i], s.ActiveProject.RootNodes[i+1:]...)
+									break
+								}
+							}
+						}
+						
+						// Recursive delete would be needed, but flat map allows easy cleanup by tracking children.
+						// simplified: just delete the node and let orphans float or clean them here recursively
+						delete(s.ActiveProject.Nodes, id)
+						
+						if s.ActiveNodeUID == id {
+							s.ActiveNodeUID = ""
+							s.loadActiveProject()
+						}
+						SaveWorkspace(s.Workspace)
+						s.EndpointsTree.Refresh()
+					}
+				}, s.Window)
+			}
 		},
 	)
 
-	s.EndpointsList.OnSelected = func(id widget.ListItemID) {
-		if id < 0 || int(id) >= len(s.Endpoints) {
+	s.EndpointsTree.OnSelected = func(id widget.TreeNodeID) {
+		node, ok := s.ActiveProject.Nodes[id]
+		if !ok { return }
+		
+		s.IsUpdatingUI = true
+		s.ActiveNodeUID = id
+		
+		if node.IsFolder || node.Endpoint == nil {
+			s.UrlLE.SetText("")
+			s.HeadersTE.SetText("")
+			s.BodyTE.SetText("")
+			s.IsUpdatingUI = false
 			return
 		}
-		ep := s.Endpoints[id]
+		
+		ep := node.Endpoint
 
 		s.MethodCB.SetSelected(ep.Method)
 
 		fullURL := ep.Path
 		if ep.BaseURL != "" {
 			fullURL = ep.BaseURL + ep.Path
-		} else {
-			fullURL = "http://localhost:8080" + ep.Path
 		}
 		s.UrlLE.SetText(fullURL)
 
@@ -150,9 +406,12 @@ func (s *AppState) buildLeftNav() fyne.CanvasObject {
 		} else {
 			s.BodyTE.SetText("")
 		}
+		s.IsUpdatingUI = false
 	}
 
-	return container.NewBorder(title, nil, nil, nil, s.EndpointsList)
+	projectRow := container.NewBorder(nil, nil, nil, container.NewHBox(newBtn, delBtn), projectSelect)
+	topBox := container.NewVBox(projectRow, reqRow)
+	return container.NewBorder(topBox, nil, nil, nil, s.EndpointsTree)
 }
 
 func (s *AppState) buildRightPane() fyne.CanvasObject {
@@ -160,9 +419,25 @@ func (s *AppState) buildRightPane() fyne.CanvasObject {
 
 	s.HeadersTE = widget.NewMultiLineEntry()
 	s.HeadersTE.SetText("Content-Type: application/json\n")
+	s.HeadersTE.OnChanged = func(val string) {
+		if !s.IsUpdatingUI && s.ActiveNodeUID != "" {
+			if node, ok := s.ActiveProject.Nodes[s.ActiveNodeUID]; ok && node.Endpoint != nil {
+				node.Endpoint.Headers = val
+				SaveWorkspace(s.Workspace)
+			}
+		}
+	}
 
 	s.BodyTE = widget.NewMultiLineEntry()
 	s.BodyTE.SetText("{\n  \"key\": \"value\"\n}")
+	s.BodyTE.OnChanged = func(val string) {
+		if !s.IsUpdatingUI && s.ActiveNodeUID != "" {
+			if node, ok := s.ActiveProject.Nodes[s.ActiveNodeUID]; ok && node.Endpoint != nil {
+				node.Endpoint.Body = val
+				SaveWorkspace(s.Workspace)
+			}
+		}
+	}
 
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Headers", s.HeadersTE),
@@ -191,7 +466,11 @@ func (s *AppState) buildRightPane() fyne.CanvasObject {
 
 func (s *AppState) buildRightSidebar() fyne.CanvasObject {
 	s.VarsTE = widget.NewMultiLineEntry()
-	s.VarsTE.SetText("BASE_URL=https://httpbin.org\nTOKEN=my-secret-token")
+	s.VarsTE.SetText(s.ActiveProject.Variables)
+	s.VarsTE.OnChanged = func(val string) {
+		s.ActiveProject.Variables = val
+		SaveWorkspace(s.Workspace)
+	}
 
 	title := widget.NewLabel("Global Variables")
 	title.TextStyle = fyne.TextStyle{Bold: true}
@@ -207,11 +486,29 @@ func (s *AppState) buildRightSidebar() fyne.CanvasObject {
 }
 
 func (s *AppState) buildTopBar() fyne.CanvasObject {
-	s.MethodCB = widget.NewSelect(s.HttpMethods, nil)
+	s.MethodCB = widget.NewSelect(s.HttpMethods, func(val string) {
+		if !s.IsUpdatingUI && s.ActiveNodeUID != "" {
+			if node, ok := s.ActiveProject.Nodes[s.ActiveNodeUID]; ok && node.Endpoint != nil {
+				node.Endpoint.Method = val
+				s.EndpointsTree.Refresh()
+				SaveWorkspace(s.Workspace)
+			}
+		}
+	})
 	s.MethodCB.SetSelected("GET")
 
 	s.UrlLE = widget.NewEntry()
 	s.UrlLE.SetText("https://httpbin.org/get")
+	s.UrlLE.OnChanged = func(val string) {
+		if !s.IsUpdatingUI && s.ActiveNodeUID != "" {
+			if node, ok := s.ActiveProject.Nodes[s.ActiveNodeUID]; ok && node.Endpoint != nil {
+				node.Endpoint.Path = val
+				node.Endpoint.BaseURL = ""
+				s.EndpointsTree.Refresh()
+				SaveWorkspace(s.Workspace)
+			}
+		}
+	}
 
 	s.SendBtn = widget.NewButton("Send", s.handleSendClicked)
 	s.SendBtn.Importance = widget.HighImportance
