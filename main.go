@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -24,7 +25,10 @@ type AppState struct {
 	VarsTE        *widget.Entry
 	StatusLbl     *widget.Label
 	RespBodyTE    *widget.Entry
-	EndpointsList *widget.List
+	EndpointsList        *widget.List
+	RightSidebar         *fyne.Container
+	RightSidebarVisible  bool
+	MainSplit            *container.Split
 
 	Endpoints       []Endpoint
 	EndpointStrings []string
@@ -95,10 +99,13 @@ func (s *AppState) buildMenuBar() *fyne.MainMenu {
 func (s *AppState) buildUI() fyne.CanvasObject {
 	leftNav := s.buildLeftNav()
 	rightPane := s.buildRightPane()
+	s.buildRightSidebar()
 
-	split := container.NewHSplit(leftNav, rightPane)
-	split.Offset = 0.3 // 30% width for left nav
-	return split
+	s.MainSplit = container.NewHSplit(leftNav, rightPane)
+	s.MainSplit.Offset = 0.25 // 25% width for left nav
+	
+	s.RightSidebarVisible = false
+	return s.MainSplit
 }
 
 func (s *AppState) buildLeftNav() fyne.CanvasObject {
@@ -154,13 +161,9 @@ func (s *AppState) buildRightPane() fyne.CanvasObject {
 	s.BodyTE = widget.NewMultiLineEntry()
 	s.BodyTE.SetText("{\n  \"key\": \"value\"\n}")
 
-	s.VarsTE = widget.NewMultiLineEntry()
-	s.VarsTE.SetText("BASE_URL=https://httpbin.org\nTOKEN=my-secret-token")
-
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Headers", s.HeadersTE),
 		container.NewTabItem("Body", s.BodyTE),
-		container.NewTabItem("Variables", s.VarsTE),
 	)
 
 	s.StatusLbl = widget.NewLabel("Status: N/A")
@@ -176,6 +179,23 @@ func (s *AppState) buildRightPane() fyne.CanvasObject {
 	return container.NewBorder(topBar, nil, nil, nil, split)
 }
 
+func (s *AppState) buildRightSidebar() fyne.CanvasObject {
+	s.VarsTE = widget.NewMultiLineEntry()
+	s.VarsTE.SetText("BASE_URL=https://httpbin.org\nTOKEN=my-secret-token")
+
+	title := widget.NewLabel("Global Variables")
+	title.TextStyle = fyne.TextStyle{Bold: true}
+	
+	info := widget.NewLabel("Use {{KEY}} in requests")
+	info.TextStyle = fyne.TextStyle{Italic: true}
+
+	content := container.NewBorder(container.NewVBox(title, info), nil, nil, nil, s.VarsTE)
+	s.RightSidebar = container.NewStack(content)
+	
+	// We don't hide it so it renders perfectly when added to split
+	return s.RightSidebar
+}
+
 func (s *AppState) buildTopBar() fyne.CanvasObject {
 	s.MethodCB = widget.NewSelect(s.HttpMethods, nil)
 	s.MethodCB.SetSelected("GET")
@@ -186,7 +206,21 @@ func (s *AppState) buildTopBar() fyne.CanvasObject {
 	s.SendBtn = widget.NewButton("Send", s.handleSendClicked)
 	s.SendBtn.Importance = widget.HighImportance
 
-	return container.NewBorder(nil, nil, s.MethodCB, s.SendBtn, s.UrlLE)
+	toggleBtn := widget.NewButtonWithIcon("", theme.MenuExpandIcon(), func() {
+		if s.RightSidebarVisible {
+			s.RightSidebarVisible = false
+			s.Window.SetContent(s.MainSplit)
+		} else {
+			s.RightSidebarVisible = true
+			split := container.NewHSplit(s.MainSplit, s.RightSidebar)
+			split.Offset = 0.75 // 75% for main content, 25% for sidebar
+			s.Window.SetContent(split)
+		}
+	})
+
+	rightBox := container.NewHBox(s.SendBtn, toggleBtn)
+
+	return container.NewBorder(nil, nil, s.MethodCB, rightBox, s.UrlLE)
 }
 
 func (s *AppState) handleSendClicked() {
