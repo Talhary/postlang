@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	html2md "github.com/JohannesKaufmann/html-to-markdown"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
@@ -24,7 +26,8 @@ type AppState struct {
 	BodyTE        *widget.Entry
 	VarsTE        *widget.Entry
 	StatusLbl     *widget.Label
-	RespBodyTE    *widget.Entry
+	RespBodyTE           *widget.Entry
+	RespPreviewRT        *widget.RichText
 	EndpointsList        *widget.List
 	RightSidebar         *fyne.Container
 	RightSidebarVisible  bool
@@ -169,9 +172,16 @@ func (s *AppState) buildRightPane() fyne.CanvasObject {
 	s.StatusLbl = widget.NewLabel("Status: N/A")
 	
 	s.RespBodyTE = widget.NewMultiLineEntry()
-	// To make it readonly, we disable it, or just use NewMultiLineEntry in read-only mode if Fyne allows. Fyne Entries don't have a simple ReadOnly bool in v2, but we can Disable it, which changes appearance. Let's just leave it editable but not updateable user-side since Postman lets you copy text. So we leave it standard.
+	
+	s.RespPreviewRT = widget.NewRichTextFromMarkdown("Preview not available.")
+	previewScroll := container.NewScroll(s.RespPreviewRT)
 
-	respSection := container.NewBorder(s.StatusLbl, nil, nil, nil, s.RespBodyTE)
+	respTabs := container.NewAppTabs(
+		container.NewTabItem("Raw", s.RespBodyTE),
+		container.NewTabItem("Preview", previewScroll),
+	)
+
+	respSection := container.NewBorder(s.StatusLbl, nil, nil, nil, respTabs)
 
 	split := container.NewVSplit(tabs, respSection)
 	split.Offset = 0.5
@@ -262,10 +272,24 @@ func (s *AppState) handleSendClicked() {
 			if res.Error != nil {
 				s.StatusLbl.SetText("Error: " + res.Error.Error())
 				s.RespBodyTE.SetText("")
+				s.RespPreviewRT.ParseMarkdown("")
 			} else {
-				statusText := fmt.Sprintf("Status: %d %s | Time: %v", res.StatusCode, res.StatusText, res.Duration)
+				statusText := fmt.Sprintf("Status: %d %s | Time: %v | Type: %s", res.StatusCode, res.StatusText, res.Duration, res.ContentType)
 				s.StatusLbl.SetText(statusText)
 				s.RespBodyTE.SetText(res.Body)
+
+				// Handle HTML to Markdown substitution
+				if strings.Contains(strings.ToLower(res.ContentType), "text/html") {
+					converter := html2md.NewConverter("", true, nil)
+					markdown, err := converter.ConvertString(res.Body)
+					if err == nil {
+						s.RespPreviewRT.ParseMarkdown(markdown)
+					} else {
+						s.RespPreviewRT.ParseMarkdown("*Failed to render HTML preview*")
+					}
+				} else {
+					s.RespPreviewRT.ParseMarkdown("*Preview not available for this content type.*")
+				}
 			}
 			s.SendBtn.Enable()
 		})

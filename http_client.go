@@ -17,13 +17,13 @@ type RequestOpts struct {
 	Body    string
 }
 
-// ResponseData contains the parsed response
 type ResponseData struct {
-	StatusCode int
-	StatusText string
-	Body       string
-	Duration   time.Duration
-	Error      error
+	StatusCode  int
+	StatusText  string
+	ContentType string
+	Body        string
+	Duration    time.Duration
+	Error       error
 }
 
 // performRequest executes the HTTP request and returns the parsed response
@@ -71,9 +71,10 @@ func performRequest(opts RequestOpts) ResponseData {
 	duration := time.Since(start)
 
 	return ResponseData{
-		StatusCode: resp.StatusCode,
-		StatusText: resp.Status,
-		Body:       string(respBody),
-		Duration:   duration,
+		StatusCode:  resp.StatusCode,
+		StatusText:  resp.Status,
+		ContentType: resp.Header.Get("Content-Type"),
+		Body:        string(respBody),
+		Duration:    duration,
 	}
 }
