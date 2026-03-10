@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -72,12 +73,17 @@ func generateDummyJSON(schemaRef *openapi3.SchemaRef) string {
 	return ""
 }
 
-// parseOpenAPI reads a YAML or JSON OpenAPI 3 spec file and extracts the endpoints.
-func parseOpenAPI(filePath string) ([]Endpoint, error) {
+// parseOpenAPI reads a YAML or JSON OpenAPI 3 spec from a reader and extracts the endpoints.
+func parseOpenAPI(reader io.Reader) ([]Endpoint, error) {
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = true
 
-	doc, err := loader.LoadFromFile(filePath)
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read OpenAPI spec: %w", err)
+	}
+
+	doc, err := loader.LoadFromData(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load OpenAPI spec: %w", err)
 	}

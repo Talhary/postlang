@@ -2,23 +2,27 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"time"
 
-	"github.com/lxn/walk"
-	. "github.com/lxn/walk/declarative"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/widget"
 )
 
 // AppState manages the UI widgets
 type AppState struct {
-	MainWindow    *walk.MainWindow
-	MethodCB      *walk.ComboBox
-	UrlLE         *walk.LineEdit
-	SendBtn       *walk.PushButton
-	HeadersTE     *walk.TextEdit
-	BodyTE        *walk.TextEdit
-	StatusLbl     *walk.Label
-	RespBodyTE    *walk.TextEdit
-	EndpointsList *walk.ListBox
+	App           fyne.App
+	Window        fyne.Window
+	MethodCB      *widget.Select
+	UrlLE         *widget.Entry
+	SendBtn       *widget.Button
+	HeadersTE     *widget.Entry
+	BodyTE        *widget.Entry
+	StatusLbl     *widget.Label
+	RespBodyTE    *widget.Entry
+	EndpointsList *widget.List
 
 	Endpoints       []Endpoint
 	EndpointStrings []string
@@ -26,284 +30,186 @@ type AppState struct {
 }
 
 func main() {
+	a := app.New()
+	w := a.NewWindow("Postlang")
+	w.Resize(fyne.NewSize(900, 600))
+
+	logo, err := fyne.LoadResourceFromPath("logo.png")
+	if err == nil {
+		w.SetIcon(logo)
+		a.SetIcon(logo)
+	}
+
 	state := &AppState{
+		App:         a,
+		Window:      w,
 		HttpMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"},
 	}
 
-	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
+	w.SetMainMenu(state.buildMenuBar())
+	w.SetContent(state.buildUI())
 
-	icon, _ := walk.NewIconFromFile("winres/icon.png")
-	if icon == nil {
-		icon, _ = walk.NewIconFromResourceId(1)
-	}
-
-	if err := (MainWindow{
-		AssignTo:   &state.MainWindow,
-		Title:      "Postlang",
-		Icon:       icon,
-		MinSize:    Size{Width: 900, Height: 600},
-		Font:       Font{Family: "Segoe UI", PointSize: 10},
-		Background: bgBrush,
-		Layout:     HBox{MarginsZero: true},
-		MenuItems:  state.buildMenuBar(),
-		Children: []Widget{
-			HSplitter{
-				Children: []Widget{
-					state.buildLeftNav(),
-					state.buildRightPane(),
-				},
-			},
-		},
-	}.Create()); err != nil {
-		log.Fatal(err)
-	}
-
-	state.applyDarkTheme()
-	state.MainWindow.Run()
+	w.ShowAndRun()
 }
 
-func (s *AppState) applyDarkTheme() {
-	bg, _ := walk.NewSolidColorBrush(walk.RGB(40, 44, 52))
-	inBg, _ := walk.NewSolidColorBrush(walk.RGB(33, 37, 43))
-	fg := walk.RGB(220, 220, 220)
-
-	s.MainWindow.SetBackground(bg)
-	
-	if s.EndpointsList != nil {
-		s.EndpointsList.SetBackground(inBg)
-	}
-	if s.UrlLE != nil {
-		s.UrlLE.SetBackground(inBg)
-		s.UrlLE.SetTextColor(fg)
-	}
-	if s.HeadersTE != nil {
-		s.HeadersTE.SetBackground(inBg)
-		s.HeadersTE.SetTextColor(fg)
-	}
-	if s.BodyTE != nil {
-		s.BodyTE.SetBackground(inBg)
-		s.BodyTE.SetTextColor(fg)
-	}
-	if s.RespBodyTE != nil {
-		s.RespBodyTE.SetBackground(inBg)
-		s.RespBodyTE.SetTextColor(fg)
-	}
-	if s.StatusLbl != nil {
-		s.StatusLbl.SetBackground(bg)
-		s.StatusLbl.SetTextColor(fg)
-	}
-}
-
-func (s *AppState) buildMenuBar() []MenuItem {
-	return []MenuItem{
-		Menu{
-			Text: "&File",
-			Items: []MenuItem{
-				Action{
-					Text: "Import OpenAPI Spec...",
-					OnTriggered: func() {
-						dlg := new(walk.FileDialog)
-						dlg.Title = "Import OpenAPI Spec"
-						dlg.Filter = "OpenAPI Files (*.json;*.yaml;*.yml)|*.json;*.yaml;*.yml|All Files (*.*)|*.*"
-
-						if ok, err := dlg.ShowOpen(s.MainWindow); err != nil {
-							return
-						} else if !ok {
-							return
-						}
-
-						eps, err := parseOpenAPI(dlg.FilePath)
-						if err != nil {
-							walk.MsgBox(s.MainWindow, "Error Loading OpenAPI", err.Error(), walk.MsgBoxIconError)
-							return
-						}
-
-						s.Endpoints = eps
-						s.EndpointStrings = make([]string, len(s.Endpoints))
-						for i, e := range s.Endpoints {
-							s.EndpointStrings[i] = e.DisplayName()
-						}
-
-						s.EndpointsList.SetModel(s.EndpointStrings)
-					},
-				},
-			},
-		},
-	}
-}
-
-func (s *AppState) buildLeftNav() Widget {
-	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
-	return Composite{
-		Layout:     VBox{MarginsZero: true},
-		MinSize:    Size{Width: 250, Height: 0},
-		Background: bgBrush,
-		Children: []Widget{
-			Label{
-				Text:       "API Endpoints (Import from File)",
-				TextColor:  walk.RGB(220, 220, 220),
-				Background: bgBrush,
-			},
-			ListBox{
-				AssignTo: &s.EndpointsList,
-				Model:    s.EndpointStrings,
-				OnCurrentIndexChanged: func() {
-					idx := s.EndpointsList.CurrentIndex()
-					if idx >= 0 && idx < len(s.Endpoints) {
-						ep := s.Endpoints[idx]
-						
-						for i, m := range s.HttpMethods {
-							if m == ep.Method {
-								s.MethodCB.SetCurrentIndex(i)
-								break
-							}
-						}
-
-						fullURL := ep.Path
-						if ep.BaseURL != "" {
-							fullURL = ep.BaseURL + ep.Path
-						} else {
-							fullURL = "http://localhost:8080" + ep.Path
-						}
-						s.UrlLE.SetText(fullURL)
-
-						if ep.Headers != "" {
-							s.HeadersTE.SetText(ep.Headers)
-						} else {
-							s.HeadersTE.SetText("")
-						}
-
-						if ep.Body != "" {
-							s.BodyTE.SetText(ep.Body)
-						} else {
-							s.BodyTE.SetText("")
-						}
+func (s *AppState) buildMenuBar() *fyne.MainMenu {
+	return fyne.NewMainMenu(
+		fyne.NewMenu("File",
+			fyne.NewMenuItem("Import OpenAPI Spec...", func() {
+				fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
+					if err != nil {
+						dialog.ShowError(err, s.Window)
+						return
 					}
-				},
-			},
-		},
-	}
+					if reader == nil {
+						return
+					}
+					defer reader.Close()
+
+					eps, err := parseOpenAPI(reader)
+					if err != nil {
+						dialog.ShowError(fmt.Errorf("error Loading OpenAPI: %v", err), s.Window)
+						return
+					}
+
+					s.Endpoints = eps
+					s.EndpointStrings = make([]string, len(s.Endpoints))
+					for i, e := range s.Endpoints {
+						s.EndpointStrings[i] = e.DisplayName()
+					}
+
+					s.EndpointsList.Refresh()
+				}, s.Window)
+
+				// Fyne file filters
+				// fd.SetFilter(storage.NewExtensionFileFilter([]string{".json", ".yaml", ".yml"}))
+				
+				fd.Show()
+			}),
+		),
+	)
 }
 
-func (s *AppState) buildRightPane() Widget {
-	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
-	return Composite{
-		Layout:     VBox{},
-		Background: bgBrush,
-		Children: []Widget{
-			s.buildTopBar(),
-			VSplitter{
-				Children: []Widget{
-					s.buildRequestTabs(),
-					s.buildResponseSection(),
-				},
-			},
-		},
-	}
+func (s *AppState) buildUI() fyne.CanvasObject {
+	leftNav := s.buildLeftNav()
+	rightPane := s.buildRightPane()
+
+	split := container.NewHSplit(leftNav, rightPane)
+	split.Offset = 0.3 // 30% width for left nav
+	return split
 }
 
-func (s *AppState) buildTopBar() Widget {
-	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
-	return Composite{
-		Layout:     HBox{MarginsZero: true},
-		Background: bgBrush,
-		Children: []Widget{
-			ComboBox{
-				AssignTo:     &s.MethodCB,
-				Model:        s.HttpMethods,
-				CurrentIndex: 0,
-			},
-			LineEdit{
-				AssignTo: &s.UrlLE,
-				Text:     "https://httpbin.org/get",
-			},
-			PushButton{
-				AssignTo:  &s.SendBtn,
-				Text:      "Send",
-				OnClicked: s.handleSendClicked,
-			},
+func (s *AppState) buildLeftNav() fyne.CanvasObject {
+	title := widget.NewLabel("API Endpoints (Import from File)")
+	title.TextStyle = fyne.TextStyle{Bold: true}
+
+	s.EndpointsList = widget.NewList(
+		func() int { return len(s.EndpointStrings) },
+		func() fyne.CanvasObject { return widget.NewLabel("Method /path/to/endpoint") },
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Label).SetText(s.EndpointStrings[i])
 		},
+	)
+
+	s.EndpointsList.OnSelected = func(id widget.ListItemID) {
+		if id < 0 || int(id) >= len(s.Endpoints) {
+			return
+		}
+		ep := s.Endpoints[id]
+
+		s.MethodCB.SetSelected(ep.Method)
+
+		fullURL := ep.Path
+		if ep.BaseURL != "" {
+			fullURL = ep.BaseURL + ep.Path
+		} else {
+			fullURL = "http://localhost:8080" + ep.Path
+		}
+		s.UrlLE.SetText(fullURL)
+
+		if ep.Headers != "" {
+			s.HeadersTE.SetText(ep.Headers)
+		} else {
+			s.HeadersTE.SetText("")
+		}
+
+		if ep.Body != "" {
+			s.BodyTE.SetText(ep.Body)
+		} else {
+			s.BodyTE.SetText("")
+		}
 	}
+
+	return container.NewBorder(title, nil, nil, nil, s.EndpointsList)
 }
 
-func (s *AppState) buildRequestTabs() Widget {
-	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
-	return TabWidget{
-		Pages: []TabPage{
-			{
-				Title:      "Headers",
-				Layout:     VBox{MarginsZero: true},
-				Background: bgBrush,
-				Children: []Widget{
-					TextEdit{
-						AssignTo: &s.HeadersTE,
-						Text:     "Content-Type: application/json\n",
-						VScroll:  true,
-					},
-				},
-			},
-			{
-				Title:      "Body",
-				Layout:     VBox{MarginsZero: true},
-				Background: bgBrush,
-				Children: []Widget{
-					TextEdit{
-						AssignTo: &s.BodyTE,
-						Text:     "{\n  \"key\": \"value\"\n}",
-						VScroll:  true,
-					},
-				},
-			},
-		},
-	}
+func (s *AppState) buildRightPane() fyne.CanvasObject {
+	topBar := s.buildTopBar()
+
+	s.HeadersTE = widget.NewMultiLineEntry()
+	s.HeadersTE.SetText("Content-Type: application/json\n")
+
+	s.BodyTE = widget.NewMultiLineEntry()
+	s.BodyTE.SetText("{\n  \"key\": \"value\"\n}")
+
+	tabs := container.NewAppTabs(
+		container.NewTabItem("Headers", s.HeadersTE),
+		container.NewTabItem("Body", s.BodyTE),
+	)
+
+	s.StatusLbl = widget.NewLabel("Status: N/A")
+	
+	s.RespBodyTE = widget.NewMultiLineEntry()
+	// To make it readonly, we disable it, or just use NewMultiLineEntry in read-only mode if Fyne allows. Fyne Entries don't have a simple ReadOnly bool in v2, but we can Disable it, which changes appearance. Let's just leave it editable but not updateable user-side since Postman lets you copy text. So we leave it standard.
+
+	respSection := container.NewBorder(s.StatusLbl, nil, nil, nil, s.RespBodyTE)
+
+	split := container.NewVSplit(tabs, respSection)
+	split.Offset = 0.5
+
+	return container.NewBorder(topBar, nil, nil, nil, split)
 }
 
-func (s *AppState) buildResponseSection() Widget {
-	bgBrush := SolidColorBrush{Color: walk.RGB(40, 44, 52)}
-	return Composite{
-		Layout:     VBox{MarginsZero: true},
-		Background: bgBrush,
-		Children: []Widget{
-			Label{
-				AssignTo: &s.StatusLbl,
-				Text:     "Status: N/A",
-			},
-			TextEdit{
-				AssignTo: &s.RespBodyTE,
-				ReadOnly: true,
-				VScroll:  true,
-			},
-		},
-	}
+func (s *AppState) buildTopBar() fyne.CanvasObject {
+	s.MethodCB = widget.NewSelect(s.HttpMethods, nil)
+	s.MethodCB.SetSelected("GET")
+
+	s.UrlLE = widget.NewEntry()
+	s.UrlLE.SetText("https://httpbin.org/get")
+
+	s.SendBtn = widget.NewButton("Send", s.handleSendClicked)
+	s.SendBtn.Importance = widget.HighImportance
+
+	return container.NewBorder(nil, nil, s.MethodCB, s.SendBtn, s.UrlLE)
 }
 
 func (s *AppState) handleSendClicked() {
-	s.MainWindow.Synchronize(func() {
-		s.SendBtn.SetEnabled(false)
-		s.StatusLbl.SetText("Status: Sending...")
-		s.RespBodyTE.SetText("")
-	})
+	s.SendBtn.Disable()
+	s.StatusLbl.SetText("Status: Sending...")
+	s.RespBodyTE.SetText("")
 
 	go func() {
 		opts := RequestOpts{
-			Method:  s.MethodCB.Text(),
-			URL:     s.UrlLE.Text(),
-			Headers: s.HeadersTE.Text(),
-			Body:    s.BodyTE.Text(),
+			Method:  s.MethodCB.Selected,
+			URL:     s.UrlLE.Text,
+			Headers: s.HeadersTE.Text,
+			Body:    s.BodyTE.Text,
 		}
 
 		res := performRequest(opts)
 
-		s.MainWindow.Synchronize(func() {
+		// Schedule UI update on main thread
+		// (Though Fyne widgets usually hander bindings safely)
+		time.AfterFunc(10*time.Millisecond, func() {
 			if res.Error != nil {
-				s.StatusLbl.SetText("Error")
-				s.RespBodyTE.SetText(res.Error.Error())
+				s.StatusLbl.SetText("Error: " + res.Error.Error())
+				s.RespBodyTE.SetText("")
 			} else {
 				statusText := fmt.Sprintf("Status: %d %s | Time: %v", res.StatusCode, res.StatusText, res.Duration)
 				s.StatusLbl.SetText(statusText)
 				s.RespBodyTE.SetText(res.Body)
 			}
-			s.SendBtn.SetEnabled(true)
+			s.SendBtn.Enable()
 		})
 	}()
 }

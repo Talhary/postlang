@@ -1,0 +1,485 @@
+﻿go : # postlang
+At line:1 char:31
++ ... od vendor ; go 
+build -ldflags="-H 
+windowsgui" -o 
+postlang.exe . 2>&1  
+...
++                 ~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (# postl   
+ ang:String) [],     
+RemoteException
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+C:\Program Files (x86
+)\Go\pkg\tool\windows
+_386\link.exe: 
+running gcc failed: 
+exit status 1
+C:\winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3\
+mingw64\bin\gcc.exe 
+-m32 -mwindows 
+-Wl,--tsaware 
+-Wl,--nxcompat -Wl,--
+major-os-version=6 -W
+l,--minor-os-version=
+1 -Wl,--major-subsyst
+em-version=6 -Wl,--mi
+nor-subsystem-version
+=1 -Wl,--dynamicbase 
+-o $WORK\b001\exe\a.o
+ut.exe C:\Users\SORCI
+M~1\AppData\Local\Tem
+p\go-link-3745949516\
+go.o C:\Users\SORCIM~
+1\AppData\Local\Temp\
+go-link-3745949516\00
+0000.o C:\Users\SORCI
+M~1\AppData\Local\Tem
+p\go-link-3745949516\
+000001.o C:\Users\SOR
+CIM~1\AppData\Local\T
+emp\go-link-374594951
+6\000002.o C:\Users\S
+ORCIM~1\AppData\Local
+\Temp\go-link-3745949
+516\000003.o C:\Users
+\SORCIM~1\AppData\Loc
+al\Temp\go-link-37459
+49516\000004.o C:\Use
+rs\SORCIM~1\AppData\L
+ocal\Temp\go-link-374
+5949516\000005.o C:\U
+sers\SORCIM~1\AppData
+\Local\Temp\go-link-3
+745949516\000006.o C:
+\Users\SORCIM~1\AppDa
+ta\Local\Temp\go-link
+-3745949516\000007.o 
+C:\Users\SORCIM~1\App
+Data\Local\Temp\go-li
+nk-3745949516\000008.
+o C:\Users\SORCIM~1\A
+ppData\Local\Temp\go-
+link-3745949516\00000
+9.o C:\Users\SORCIM~1
+\AppData\Local\Temp\g
+o-link-3745949516\000
+010.o C:\Users\SORCIM
+~1\AppData\Local\Temp
+\go-link-3745949516\0
+00011.o C:\Users\SORC
+IM~1\AppData\Local\Te
+mp\go-link-3745949516
+\000012.o C:\Users\SO
+RCIM~1\AppData\Local\
+Temp\go-link-37459495
+16\000013.o C:\Users\
+SORCIM~1\AppData\Loca
+l\Temp\go-link-374594
+9516\000014.o C:\User
+s\SORCIM~1\AppData\Lo
+cal\Temp\go-link-3745
+949516\000015.o C:\Us
+ers\SORCIM~1\AppData\
+Local\Temp\go-link-37
+45949516\000016.o C:\
+Users\SORCIM~1\AppDat
+a\Local\Temp\go-link-
+3745949516\000017.o C
+:\Users\SORCIM~1\AppD
+ata\Local\Temp\go-lin
+k-3745949516\000018.o
+ C:\Users\SORCIM~1\Ap
+pData\Local\Temp\go-l
+ink-3745949516\000019
+.o C:\Users\SORCIM~1\
+AppData\Local\Temp\go
+-link-3745949516\0000
+20.o C:\Users\SORCIM~
+1\AppData\Local\Temp\
+go-link-3745949516\00
+0021.o C:\Users\SORCI
+M~1\AppData\Local\Tem
+p\go-link-3745949516\
+000022.o C:\Users\SOR
+CIM~1\AppData\Local\T
+emp\go-link-374594951
+6\000023.o C:\Users\S
+ORCIM~1\AppData\Local
+\Temp\go-link-3745949
+516\000024.o C:\Users
+\SORCIM~1\AppData\Loc
+al\Temp\go-link-37459
+49516\000025.o C:\Use
+rs\SORCIM~1\AppData\L
+ocal\Temp\go-link-374
+5949516\000026.o C:\U
+sers\SORCIM~1\AppData
+\Local\Temp\go-link-3
+745949516\000027.o C:
+\Users\SORCIM~1\AppDa
+ta\Local\Temp\go-link
+-3745949516\000028.o 
+C:\Users\SORCIM~1\App
+Data\Local\Temp\go-li
+nk-3745949516\000029.
+o C:\Users\SORCIM~1\A
+ppData\Local\Temp\go-
+link-3745949516\00003
+0.o C:\Users\SORCIM~1
+\AppData\Local\Temp\g
+o-link-3745949516\000
+031.o -O2 -g -lgdi32 
+-lopengl32 -O2 -g 
+-O2 -g -lopengl32 
+-lopengl32 -Wl,-T,C:\
+Users\SORCIM~1\AppDat
+a\Local\Temp\go-link-
+3745949516\fix_debug_
+gdb_scripts.ld 
+-Wl,--start-group 
+-lmingwex -lmingw32 
+-Wl,--end-group 
+-lkernel32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libgdi32
+.a when searching 
+for -lgdi32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib\libgdi32
+.a when searching 
+for -lgdi32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libgdi32
+.a when searching 
+for -lgdi32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: cannot find 
+-lgdi32: No such 
+file or directory
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libgdi32
+.a when searching 
+for -lgdi32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib\libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: cannot find 
+-lopengl32: No such 
+file or directory
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib\libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: cannot find 
+-lopengl32: No such 
+file or directory
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib\libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: cannot find 
+-lopengl32: No such 
+file or directory
+C:/winlibs-x86_64-pos
+ix-seh-gcc-15.2.0-min
+gw-w64ucrt-13.0.0-r3/
+mingw64/bin/../lib/gc
+c/x86_64-w64-mingw32/
+15.2.0/../../../../x8
+6_64-w64-mingw32/bin/
+ld.exe: skipping 
+incompatible C:/winli
+bs-x86_64-posix-seh-g
+cc-15.2.0-mingw-w64uc
+rt-13.0.0-r3/mingw64/
+bin/../lib/gcc/x86_64
+-w64-mingw32/15.2.0/.
+./../../../x86_64-w64
+-mingw32/lib/libopeng
+l32.a when searching 
+for -lopengl32
+collect2.exe: error: 
+ld returned 1 exit 
+status
+

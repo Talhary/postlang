@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talha Riaz - Senior Full-Stack Developer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .no-print { display: none; }
+            .page-container { 
+                border: none !important; 
+                box-shadow: none !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            @page {
+                margin: 0.3in;
+            }
+        }
+        .section-title {
+            border-bottom: 1.5px solid #000;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .skill-tag {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 0.05rem 0.3rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            display: inline-block;
+            margin-right: 0.15rem;
+            margin-bottom: 0.15rem;
+            font-weight: 500;
+        }
+        strong { font-weight: 600; }
+    </style>
+</head>
+<body class="bg-gray-100 py-4 px-4">
+    <div class="page-container max-w-4xl mx-auto bg-white p-6 md:p-8 shadow-md border border-gray-200">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b-2 border-black pb-3">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight">TALHA RIAZ</h1>
+                <p class="text-md font-medium text-gray-700 uppercase tracking-wider">Senior Full-Stack Developer</p>
+            </div>
+            <div class="mt-2 md:mt-0 text-left md:text-right text-[11px]">
+                <p>Bhara Kahu, Islamabad, Pakistan | +92 318 5853847</p>
+                <p>
+                    <a href="mailto:talhariaz5425869@gmail.com" class="hover:underline font-semibold text-black">talhariaz5425869@gmail.com</a> |
+                    <a href="https://github.com/talhary" class="hover:underline font-semibold text-black">github.com/talhary</a>
+                </p>
+                <p class="italic">talhatech.vercel.app</p>
+            </div>
+        </header>
+
+        <!-- Professional Summary -->
+        <section class="mb-4">
+            <h2 class="section-title">Professional Summary</h2>
+            <p class="text-gray-800 text-[12px]">
+                Senior Full-Stack Developer with 2 years of experience building enterprise-grade <strong>Management Systems</strong>. 
+                Expert in <strong>Next.js</strong>, <strong>TanStack Start</strong>, and <strong>React Redux</strong> for state management. 
+                Proficient in <strong>Python (FastAPI)</strong> and <strong>Golang</strong>. Specialized in high-performance UIs using 
+                <strong>Tailwind CSS</strong>, <strong>shadcn/ui</strong>, and <strong>MUI</strong>, with robust data fetching via <strong>TanStack Query</strong>.
+            </p>
+        </section>
+
+        <!-- Experience -->
+        <section class="mb-4">
+            <h2 class="section-title">Work Experience</h2>
+            
+            <!-- Woltrio -->
+            <div class="mb-3">
+                <div class="flex justify-between items-baseline mb-0.5">
+                    <h3 class="text-[14px] font-bold">Senior Software Engineer | Woltrio</h3>
+                    <span class="text-[10px] font-bold text-gray-700 uppercase">2025 — Present</span>
+                </div>
+                <ul class="list-disc ml-4 text-[12px] text-gray-800 space-y-0.5">
+                    <li>Building modern healthcare frontends with <strong>TanStack Start</strong> and <strong>shadcn/ui</strong> for premium user experiences.</li>
+                    <li>Implementing complex server-state management using <strong>TanStack Query (React Query)</strong> and <strong>Redux Toolkit</strong>.</li>
+                    <li>Architecting scalable backends with <strong>Golang</strong> and <strong>AWS Fargate</strong> serverless containers.</li>
+                    <li>Configured <strong>ALB/Target Groups</strong> and managed SSL via <strong>AWS ACM</strong> for high-security healthcare traffic.</li>
+                    <li>Streamlined development cycles with <strong>GitHub Actions CI/CD</strong> and <strong>Docker Compose</strong>.</li>
+                </ul>
+            </div>
+
+            <!-- Swismax -->
+            <div class="mb-3">
+                <div class="flex justify-between items-baseline mb-0.5">
+                    <h3 class="text-[14px] font-bold">Software Engineer | Swismax</h3>
+                    <span class="text-[10px] font-bold text-gray-700 uppercase">2024 — 2025</span>
+                </div>
+                <ul class="list-disc ml-4 text-[12px] text-gray-800 space-y-0.5">
+                    <li>Developed feature-rich dashboards using <strong>React</strong> and <strong>Material UI (MUI)</strong> for data-heavy platforms.</li>
+                    <li>Managed backend services on <strong>AWS EC2</strong> and transitioned PHP monoliths to containerized microservices.</li>
+                    <li>Built cross-platform mobile apps with <strong>React Native & Expo</strong> and automated testing via <strong>Puppeteer</strong>.</li>
+                    <li>Delivered scalable SaaS solutions with <strong>Tailwind CSS</strong> ensuring full responsiveness across all devices.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Management Systems & Projects -->
+        <section class="mb-4">
+            <h2 class="section-title">Management Systems & Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <h4 class="font-bold text-[13px] text-black">Vine LMS (vinelms.com)</h4>
+                    <p class="text-[11px] text-gray-800 mt-0.5">
+                        LMS built with <strong>Next.js, TanStack Query, and Supabase</strong>. Features a custom UI built with <strong>shadcn/ui</strong> 
+                        and <strong>Stripe</strong> for automated billing and student progress tracking.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-[13px] text-black">Healthcare EMR System</h4>
+                    <p class="text-[11px] text-gray-800 mt-0.5">
+                        <strong>EMR</strong> platform built with <strong>MERN</strong> stack. Utilized <strong>Redux</strong> for global state 
+                        and <strong>AWS Fargate</strong> for scalable API endpoints with <strong>ACM</strong> encryption.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Skills -->
+        <section class="mb-4">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div>
+                    <h4 class="font-bold uppercase text-[8px] text-gray-500 mb-1">Frontend/UI</h4>
+                    <div class="flex flex-wrap">
+                        <span class="skill-tag">Next.js</span><span class="skill-tag">TanStack Start</span>
+                        <span class="skill-tag">React</span><span class="skill-tag">Redux</span>
+                        <span class="skill-tag">TanStack Query</span><span class="skill-tag">Tailwind</span>
+                        <span class="skill-tag">shadcn/ui</span><span class="skill-tag">MUI</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold uppercase text-[8px] text-gray-500 mb-1">Backend/API</h4>
+                    <div class="flex flex-wrap">
+                        <span class="skill-tag">Node.js</span><span class="skill-tag">FastAPI</span>
+                        <span class="skill-tag">Golang</span><span class="skill-tag">PHP</span>
+                        <span class="skill-tag">REST APIs</span><span class="skill-tag">Webhooks</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold uppercase text-[8px] text-gray-500 mb-1">AWS & Cloud</h4>
+                    <div class="flex flex-wrap">
+                        <span class="skill-tag">Fargate</span><span class="skill-tag">EC2</span>
+                        <span class="skill-tag">ACM</span><span class="skill-tag">ALB</span>
+                        <span class="skill-tag">S3</span><span class="skill-tag">Firebase</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold uppercase text-[8px] text-gray-500 mb-1">DevOps/Tools</h4>
+                    <div class="flex flex-wrap">
+                        <span class="skill-tag">GitHub Actions</span><span class="skill-tag">CI/CD</span>
+                        <span class="skill-tag">Docker Compose</span><span class="skill-tag">Puppeteer</span>
+                        <span class="skill-tag">Postgres</span><span class="skill-tag">Supabase</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education & Languages -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section>
+                <h2 class="section-title">Education</h2>
+                <div class="flex justify-between items-baseline">
+                    <div>
+                        <h3 class="font-bold text-[12px]">BS in Computer Science</h3>
+                        <p class="text-gray-700 text-[11px]">Quaid-e-Azam University, Islamabad</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-600 italic">2021 — 2024</span>
+                </div>
+            </section>
+            <section>
+                <h2 class="section-title">Languages</h2>
+                <div class="flex gap-4 text-[11px]">
+                    <p><strong>English:</strong> Proficient</p>
+                    <p><strong>Urdu:</strong> Native</p>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- Print Button -->
+    <div class="max-w-4xl mx-auto mt-4 text-center no-print">
+        <button onclick="window.print()" class="bg-black text-white px-6 py-2 rounded font-bold hover:bg-gray-800 transition-all text-sm uppercase tracking-widest">
+            Print Single Page PDF
+        </button>
+    </div>
+</body>
+</html>
